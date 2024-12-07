@@ -1,4 +1,4 @@
-import ethers from "ethers";
+import * as ethers from "ethers";
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { LIT_RPC, LIT_NETWORK, LIT_ABILITY } from "@lit-protocol/constants";
 import {
@@ -24,7 +24,7 @@ export const runExample = async (req: any, res: any) => {
   try {
     const chainInfo = getChainInfo("sepolia");
     console.log(chainInfo.rpcUrl);
-    // console.log(ETHEREUM_PRIVATE_KEY)
+    console.log(ETHEREUM_PRIVATE_KEY)
     const ethersWallet = new ethers.Wallet(
       ETHEREUM_PRIVATE_KEY,
       new ethers.providers.JsonRpcProvider(chainInfo.rpcUrl)
@@ -51,34 +51,34 @@ export const runExample = async (req: any, res: any) => {
       console.log(`ℹ️  Using provided PKP: ${LIT_PKP_PUBLIC_KEY}`);
     }
 
-    // console.log(`🔄 Checking PKP balance...`);
-    // let bal = await ethersProvider.getBalance(pkpInfo.ethAddress!);
-    // let formattedBal = ethers.utils.formatEther(bal);
+    console.log(`🔄 Checking PKP balance...`);
+    let bal = await ethersProvider.getBalance(pkpInfo.ethAddress!);
+    let formattedBal = ethers.utils.formatEther(bal);
 
-    // if (Number(formattedBal) < Number(ethers.utils.formatEther(25_000))) {
-    //   console.log(
-    //     `ℹ️  PKP balance: ${formattedBal} is insufficient to run example`
-    //   );
-    //   console.log(`🔄 Funding PKP...`);
+    if (Number(formattedBal) < Number(ethers.utils.formatEther(25_000))) {
+      console.log(
+        `ℹ️  PKP balance: ${formattedBal} is insufficient to run example`
+      );
+      console.log(`🔄 Funding PKP...`);
 
-    //   const fundingTx = {
-    //     to: pkpInfo.ethAddress!,
-    //     value: ethers.utils.parseEther("0.001"),
-    //     gasLimit: 21_000,
-    //     gasPrice: (await ethersWallet.getGasPrice()).toHexString(),
-    //     nonce: await ethersProvider.getTransactionCount(ethersWallet.address),
-    //     chainId: chainInfo.chainId,
-    //   };
+      const fundingTx = {
+        to: pkpInfo.ethAddress!,
+        value: ethers.utils.parseEther("0.001"),
+        gasLimit: 21_000,
+        gasPrice: (await ethersWallet.getGasPrice()).toHexString(),
+        nonce: await ethersProvider.getTransactionCount(ethersWallet.address),
+        chainId: chainInfo.chainId,
+      };
 
-    //   const fundingTxPromise = await ethersWallet.sendTransaction(fundingTx);
-    //   const fundingTxReceipt = await fundingTxPromise.wait();
+      const fundingTxPromise = await ethersWallet.sendTransaction(fundingTx);
+      const fundingTxReceipt = await fundingTxPromise.wait();
 
-    //   console.log(
-    //     `✅ PKP funded. Transaction hash: ${fundingTxReceipt.transactionHash}`
-    //   );
-    // } else {
-    //   console.log(`✅ PKP has a sufficient balance of: ${formattedBal}`);
-    // }
+      console.log(
+        `✅ PKP funded. Transaction hash: ${fundingTxReceipt.transactionHash}`
+      );
+    } else {
+      console.log(`✅ PKP has a sufficient balance of: ${formattedBal}`);
+    }
 
     console.log("🔄 Initializing connection to the Lit network...");
     litNodeClient = new LitNodeClient({

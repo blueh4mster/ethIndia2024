@@ -47,3 +47,22 @@ export const getChainInfo = (
     chainId: LIT_CHAINS[chain].chainId,
   };
 };
+
+// 2fa for txns having amount above 10 eth
+// export const verify2FApolicy = async (tx : any) => {
+//   try {
+//     if (tx.amount > 10){
+//       await tx.sendVerificationEmail({
+//         email: tx.email,
+//         txHash: tx.hash
+//       });
+//       return {
+//         requiresVerification: true,
+//         txHash: tx.hash
+//       }
+//     }
+
+//   } catch (e){
+//     throw new Error(`2fa policy error`)
+//   }
+// }
