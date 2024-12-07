@@ -15,7 +15,7 @@ const ETHEREUM_PRIVATE_KEY = getEnv("ETHEREUM_PRIVATE_KEY");
 const LIT_PKP_PUBLIC_KEY = process.env.LIT_PKP_PUBLIC_KEY || "";
 
 export const runExample = async (req: any, res: any) => {
-  const { data } = req.body;
+  const { amount, address, timePeriod } = req.body;
   let pkpInfo: any = {
     publicKey: LIT_PKP_PUBLIC_KEY,
   };
@@ -134,7 +134,9 @@ export const runExample = async (req: any, res: any) => {
       sessionSigs,
       code: litActionCode,
       jsParams: {
-        data,
+        amount: amount,
+        address: address,
+        timePeriod: timePeriod,
       },
     });
     console.log("✅ Executed Lit Action");
