@@ -115,7 +115,7 @@ export const signAndCombineAndSendTx = async () => {
     console.log("🔄 Creating and serializing unsigned transaction...");
     const unsignedTransaction = {
       to: ethersWallet.address,
-      value: ethers.utils.parseEther("0.0001"),
+      value: 1,
       gasLimit: 21_000,
       gasPrice: (await ethersWallet.getGasPrice()).toHexString(),
       nonce: await ethersProvider.getTransactionCount(pkpInfo.ethAddress!),
@@ -152,6 +152,8 @@ export const signAndCombineAndSendTx = async () => {
         uses: "1",
       });
     console.log("✅ Capacity Delegation Auth Sig created");
+
+    console.log(litActionCode);
 
     console.log("🔄 Attempting to execute the Lit Action code...");
     const result = await litNodeClient.executeJs({
