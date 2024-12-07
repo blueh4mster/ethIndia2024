@@ -1,7 +1,7 @@
 import express from "express";
-import bodyParser from "body-parser";
 import cors from "cors";
-import txnRouter from "./routes/txnRoutes";
+import bodyParser from "body-parser";
+import fetchRouter from "./routes/fetchRoutes";
 
 const app = express();
 // Middleware
@@ -9,7 +9,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
-app.use("/api", txnRouter);
+app.use("/api", fetchRouter);
 
 // Start the server
 const PORT = 3001;
