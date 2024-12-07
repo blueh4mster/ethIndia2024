@@ -7,6 +7,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import {Wallet} from "@coinbase/coinbase-sdk";
+import { transfer } from "@coinbase/cdp-agentkit-core/dist/actions/cdp/transfer";
 
 dotenv.config();
 
@@ -104,6 +106,19 @@ async function initializeAgent() {
 
     // Save wallet data
     const exportedWallet = await agentkit.exportWallet();
+     // console.log(exportedWallet);
+     
+    const data = JSON.parse(exportedWallet);
+
+    // Extract the defaultAddressId
+    const walletId = data.walletId;
+
+    var wallet = await Wallet.fetch(walletId) 
+
+    const faucet = await wallet.faucet();
+
+    // console.log("Faucet Transaction: ", faucet.getTransactionHash())
+
     fs.writeFileSync(WALLET_DATA_FILE, exportedWallet);
 
     return { agent, config: agentConfig };
@@ -129,7 +144,6 @@ async function runAutonomousMode(agent: any, config: any, interval = 10) {
         "Be creative and do something interesting on the blockchain. " +
         "Choose an action or set of actions and execute it that highlights your abilities.";
         
-
       const stream = await agent.stream({ messages: [new HumanMessage(thought)] }, config);
 
       for await (const chunk of stream) {
