@@ -23,7 +23,8 @@ export const runExample = async (req: any, res: any) => {
 
   try {
     const chainInfo = getChainInfo("sepolia");
-
+    console.log(chainInfo.rpcUrl);
+    // console.log(ETHEREUM_PRIVATE_KEY)
     const ethersWallet = new ethers.Wallet(
       ETHEREUM_PRIVATE_KEY,
       new ethers.providers.JsonRpcProvider(chainInfo.rpcUrl)

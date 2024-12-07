@@ -68,7 +68,8 @@ async function initializeAgent() {
       apiKey: process.env.XAI_API_KEY,
       configuration: {
         baseURL: "https://api.x.ai/v1"
-      }
+      },
+      temperature: 0,
     });
 
     let walletDataStr: string | null = null;
@@ -111,22 +112,23 @@ async function initializeAgent() {
 
     // Save wallet data
     const exportedWallet = await agentkit.exportWallet();
-     // console.log(exportedWallet);
+    console.log(exportedWallet);
      
     const data = JSON.parse(exportedWallet);
 
     // Extract the defaultAddressId
     const walletId = data.walletId;
+    const walletAddress = data.defaultAddressId
 
     var wallet = await Wallet.fetch(walletId) 
 
-    const faucet = await wallet.faucet();
+    // const faucet = await wallet.faucet();
 
     // console.log("Faucet Transaction: ", faucet.getTransactionHash())
 
     fs.writeFileSync(WALLET_DATA_FILE, exportedWallet);
 
-    return { agent, config: agentConfig };
+    return { agent, config: agentConfig, walletAddress };
   } catch (error) {
     console.error("Failed to initialize agent:", error);
     throw error; // Re-throw to be handled by caller
@@ -254,13 +256,16 @@ async function initializeAgent() {
 // Function to simulate user input every 10 seconds
 var transactionOutput; 
 var error;
+var walletAddress2;
 
 const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
   setInterval(async () => {
     console.log(`\nSending automated prompt: ${prompt}`);
 
-    const { agent, config } = await initializeAgent();
+    const { agent, config, walletAddress } = await initializeAgent();
     
+    walletAddress2 = walletAddress
+
     const userInput = prompt; // Using predefined prompt as user input
     var stream: IterableReadableStream<any>;
 
@@ -377,7 +382,7 @@ app.post('/ai-agent', (req: Request, res: Response) => {
   const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
   sendPeriodicPrompt(prompt, Number(timePeriod))
 
-  res.json({ message: transactionOutput });
+  res.json({ message: transactionOutput + "\nWallet Address: " + walletAddress2 });
 });
 
 app.post('/response', (req: Request, res: Response) => {
