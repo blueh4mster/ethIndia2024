@@ -292,7 +292,12 @@ async function chooseMode(): Promise<"chat" | "auto"> {
     const choice = (await question("\nChoose a mode (enter number or name): "))
       .toLowerCase()
       .trim();
-
+    const address = (await question("\n to which address do you want to send funds "))
+      .toLowerCase()
+      .trim();
+    const amount = (await question("\n how much funds do you want to send "))
+      .toLowerCase()
+      .trim();
     if (choice === "1" || choice === "chat") {
       rl.close();
       return "chat";
@@ -302,7 +307,8 @@ async function chooseMode(): Promise<"chat" | "auto"> {
     } else if (choice === "timer") {
       rl.close();
       // await setTimer(10, 0.01)
-      sendPeriodicPrompt(`transfer 0.005 eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain, not a gasless transfer`)
+      const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
+      sendPeriodicPrompt(prompt)
       return "chat";
     }
     console.log("Invalid choice. Please try again.");
