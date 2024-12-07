@@ -1,0 +1,1 @@
+{"walletId":"87638b05-2336-4e99-839b-151c0b6f83f2","seed":"e44a014ce8e02b9dc97b1798b4fc4bff77dfe6ecac41afa46549d9669aae1d66","defaultAddressId":"0xCE16c5bf4FBC9Af9Ef4A7E4AD5C06B90618cc855"}

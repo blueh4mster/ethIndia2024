@@ -9,6 +9,7 @@ import * as fs from "fs";
 import * as readline from "readline";
 import {Wallet} from "@coinbase/coinbase-sdk";
 import express, { Router, Request, Response } from 'express';
+import { IterableReadableStream } from "@langchain/core/utils/stream";
 // import { transfer } from "@coinbase/cdp-agentkit-core/dist/actions/cdp/transfer";
 
 dotenv.config();
@@ -251,7 +252,8 @@ async function initializeAgent() {
 // }
 
 // Function to simulate user input every 10 seconds
-
+var transactionOutput; 
+var error;
 
 const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
   setInterval(async () => {
@@ -260,17 +262,28 @@ const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
     const { agent, config } = await initializeAgent();
     
     const userInput = prompt; // Using predefined prompt as user input
+    var stream: IterableReadableStream<any>;
 
-    const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
-
-    for await (const chunk of stream) {
-      if ("agent" in chunk) {
-        console.log(chunk.agent.messages[0].content);
-      } else if ("tools" in chunk) {
-        console.log(chunk.tools.messages[0].content);
+    try {
+      stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+      // Process the stream as needed
+      for await (const chunk of stream) {
+        if ("agent" in chunk) {
+          console.log(chunk.agent.messages[0].content);
+        } else if ("tools" in chunk) {
+          console.log(chunk.tools.messages[0].content);
+          transactionOutput = chunk.tools.messages[0].content
+        }
+        console.log("-------------------");
       }
-      console.log("-------------------");
+
+    } catch (error) {
+      console.error('Error occurred while streaming:', error);
+      error = error
+      // Additional error handling logic
     }
+
+    
   }, timePeriod * 1000); // 10000ms = 10 seconds
 };
 
@@ -364,7 +377,19 @@ app.post('/ai-agent', (req: Request, res: Response) => {
   const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
   sendPeriodicPrompt(prompt, Number(timePeriod))
 
-  res.json({ message: 'This is an example route' });
+  res.json({ message: transactionOutput });
+});
+
+app.post('/response', (req: Request, res: Response) => {
+  // const { amount, address, timePeriod } = req.body;
+
+  // const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
+  // sendPeriodicPrompt(prompt, Number(timePeriod))
+
+  if (error != "") {
+    res.json({ error: error });
+  } 
+  res.json({ message: transactionOutput });
 });
 
 const PORT = 3000;
