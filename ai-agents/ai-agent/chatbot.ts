@@ -211,6 +211,65 @@ async function runChatMode(agent: any, config: any) {
   }
 }
 
+// async function setTimer(time: number, amount: number) {
+//   if (time <= 0) {
+//     throw new Error("Interval must be greater than 0");
+//   }
+
+//   const { agent, config, agentkit } = await initializeAgent();
+
+//   // Convert seconds to milliseconds
+//   const intervalInMilliseconds = time * 1000;
+//   const dummy = async function(){}();
+//   // Call transfer every x seconds
+//   setInterval(() => {
+//     console.log(`transfer ${amount} sepolia eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain`)
+    
+//     // const userInput = `transfer ${amount} sepolia eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain`;
+
+//     // const stream = agent
+//     // .stream({ messages: [new HumanMessage(userInput)] }, config)
+//     // .then(async (stream) => {
+//     //   for await (const chunk of stream) {
+//     //     if ("agent" in chunk) {
+//     //       console.log(chunk.agent.messages[0].content);
+//     //     } else if ("tools" in chunk) {
+//     //       console.log(chunk.tools.messages[0].content);
+//     //     }
+//     //     console.log("-------------------");
+//     //   }
+//     // })
+//     // .catch((error) => {
+//     //   console.error("Error processing stream:", error, "Stream: ", userInput);
+//     // });
+  
+//   }, intervalInMilliseconds)
+// }
+
+// Function to simulate user input every 10 seconds
+
+
+const sendPeriodicPrompt = (prompt: string) => {
+  setInterval(async () => {
+    console.log(`\nSending automated prompt: ${prompt}`);
+
+    const { agent, config } = await initializeAgent();
+    
+    const userInput = prompt; // Using predefined prompt as user input
+
+    const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+
+    for await (const chunk of stream) {
+      if ("agent" in chunk) {
+        console.log(chunk.agent.messages[0].content);
+      } else if ("tools" in chunk) {
+        console.log(chunk.tools.messages[0].content);
+      }
+      console.log("-------------------");
+    }
+  }, 10000); // 10000ms = 10 seconds
+};
+
 /**
  * Choose whether to run in autonomous or chat mode based on user input
  *
@@ -240,6 +299,11 @@ async function chooseMode(): Promise<"chat" | "auto"> {
     } else if (choice === "2" || choice === "auto") {
       rl.close();
       return "auto";
+    } else if (choice === "timer") {
+      rl.close();
+      // await setTimer(10, 0.01)
+      sendPeriodicPrompt(`transfer 0.005 eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain, not a gasless transfer`)
+      return "chat";
     }
     console.log("Invalid choice. Please try again.");
   }
