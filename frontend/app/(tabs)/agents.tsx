@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
 import CustomCard from "@/components/card";
 import { Redirect, router } from "expo-router";
+import { createStackNavigator } from "@react-navigation/stack";
 
-export default function App() {
+const Stack = createStackNavigator();
+
+export default function Agents() {
   const [selectedCard, setSelectedCard] = useState(null);
 
   const handleContinue = () => {
     if (selectedCard === "AI Agent") {
-      router.push("/add");
+      router.push("/agents/add");
     }
   };
 
@@ -16,8 +19,8 @@ export default function App() {
     <SafeAreaView className="bg-black h-full">
       <View className="mt-12 top-4 left-4 mb-12">
         <View className="flex-row">
-          <Text className="text-white text-5xl font-bold">Choose</Text>
-          <Text className="text-purple text-5xl font-bold">Agents</Text>
+          <Text className="text-white text-3xl font-bold">Choose</Text>
+          <Text className="text-white text-3xl font-bold">Agents</Text>
         </View>
       </View>
 

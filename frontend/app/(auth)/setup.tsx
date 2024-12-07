@@ -1,10 +1,39 @@
 import { View, Text, SafeAreaView, ScrollView, Image } from "react-native";
+import React from "react";
 import CustomButton from "@/components/customButton";
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
 import walletImage from "@/assets/images/illustration.png";
+import {
+  WalletConnectModal,
+  useWalletConnectModal,
+} from "@walletconnect/modal-react-native";
+
+const projectId = "1a8df8683f08d030a6ec2c6b7277152c";
+const providerMetadata = {
+  name: "TacoGalaxy",
+  description:
+    "WalletConnect is an open protocol for connecting desktop Dapps to mobile Wallets using end-to-end encryption by scanning a QR code.",
+  url: "https://TacoGalaxy.org",
+  icons: ["https://walletconnect.org/TacoGalaxy-logo.png"],
+  redirect: {
+    native: "TacoGalaxy://",
+    universal: "https://TacoGalaxy.org",
+  },
+};
 
 export default function setUp() {
+  const { open, isConnected, address, provider } = useWalletConnectModal();
+
+  const handlePressButton = async () => {
+    console.log("buttonpressed");
+    if (!isConnected) {
+      router.push("/agents");
+      return provider?.disconnect();
+    }
+    return open();
+  };
+
   return (
     <SafeAreaView className="bg-black h-full">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -31,18 +60,27 @@ export default function setUp() {
           </View>
 
           <View className="absolute bottom-8 left-0 right-0 items-center">
+            {/* <View>
+              <Text className="text-white">
+                {isConnected ? address : "not connected"}
+              </Text>
+            </View> */}
             <CustomButton
-              title="Connect Wallet"
+              title={isConnected ? address + " >" : "Connect Wallet"}
               outline={false}
-              handlePress={() => router.push("/setup")}
-              containerstyle="min-w-[340px] mb-4"
+              handlePress={handlePressButton}
+              containerstyle="min-w-[340px]"
             />
-            <CustomButton
+            <WalletConnectModal
+              projectId={projectId}
+              providerMetadata={providerMetadata}
+            />
+            {/* <CustomButton
               title="Choose Agent"
               outline={true}
               handlePress={() => router.push("/agents")}
               containerstyle="min-w-[340px]"
-            />
+            /> */}
           </View>
         </View>
       </ScrollView>
