@@ -11,7 +11,7 @@ export default function App() {
         <View className="flex-1 justify-center">
           <View className="flex-row p-4 mt-8">
             <Text className="text-white text-6xl font-bold">Taco</Text>
-            <Text className="text-violet text-6xl font-bold">Galaxy</Text>
+            <Text className="text-purple text-6xl font-bold">Galaxy</Text>
           </View>
           <View className="mt-4 relative left-16">
             <Image
@@ -34,7 +34,7 @@ export default function App() {
             <CustomButton
               title="Get Started"
               outline={false}
-              handlePress={() => router.push("/sign-in")}
+              handlePress={() => router.push("/setup")}
               containerstyle="min-w-[340px]"
             />
           </View>

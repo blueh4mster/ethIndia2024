@@ -4,8 +4,17 @@ import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import CustomButton from "@/components/customButton";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useNavigation } from "expo-router";
 
 export default function Add() {
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
   const [formData, setFormData] = useState({
     to: "",
     amount: "",
@@ -16,6 +25,7 @@ export default function Add() {
   const [value, setValue] = useState(null);
   const [durationValue, setDurationValue] = useState(null);
   const [items, setItems] = useState([
+    { label: "sec", value: "10 sec" },
     { label: "Daily", value: "daily" },
     { label: "Weekly", value: "weekly" },
     { label: "Monthly", value: "monthly" },
@@ -28,8 +38,25 @@ export default function Add() {
   ]);
 
   const handlePayNow = () => {
-    router.push("/add");
-    // Add payment logic here
+    const getAllAssets = async () => {
+      const options = {
+        method: "GET",
+        url: `${process.env.API_BASE_URL}/api/assets`,
+        params: {
+          blockchain: chain,
+        },
+      };
+
+      try {
+        const response = await axios.request(options);
+
+        if (response.data && response.data.status === "SUCCESS") {
+          router.push("/subs");
+        }
+      } catch (err) {
+        console.error({ "error refresh": err });
+      }
+    };
   };
 
   const renderItem = () => (
@@ -149,7 +176,7 @@ export default function Add() {
 
       <View className="relative -bottom-20 left-0 right-0 items-center">
         <CustomButton
-          title="Pay Now"
+          title="Continue"
           outline={false}
           handlePress={handlePayNow}
           containerstyle="min-w-[340px]"
