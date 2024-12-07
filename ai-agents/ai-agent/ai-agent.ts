@@ -10,6 +10,8 @@ import * as readline from "readline";
 import {Wallet} from "@coinbase/coinbase-sdk";
 import express, { Router, Request, Response } from 'express';
 import { IterableReadableStream } from "@langchain/core/utils/stream";
+import WebSocket from "ws";
+import http from "http";
 // import { transfer } from "@coinbase/cdp-agentkit-core/dist/actions/cdp/transfer";
 
 dotenv.config();
@@ -122,7 +124,7 @@ async function initializeAgent() {
 
     var wallet = await Wallet.fetch(walletId) 
 
-    // const faucet = await wallet.faucet();
+    const faucet = await wallet.faucet();
 
     // console.log("Faucet Transaction: ", faucet.getTransactionHash())
 
@@ -258,16 +260,34 @@ var transactionOutput;
 var error;
 var walletAddress2;
 
+const app = express();
+app.use(express.json()); // Middleware to parse JSON
+
+
+// WebSocket server setup
+const server = http.createServer(app); // Create an HTTP server using Express
+const wss = new WebSocket.Server({ server }); // Attach WebSocket server to the HTTP server
+
+// Listen for new WebSocket connections and broadcast messages
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+    // Send a welcome message when a new client connects
+    ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+
 const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
   setInterval(async () => {
     console.log(`\nSending automated prompt: ${prompt}`);
 
     const { agent, config, walletAddress } = await initializeAgent();
-    
-    walletAddress2 = walletAddress
-
+    walletAddress2 = walletAddress;
     const userInput = prompt; // Using predefined prompt as user input
-    var stream: IterableReadableStream<any>;
+    let stream;
 
     try {
       stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
@@ -277,20 +297,52 @@ const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
           console.log(chunk.agent.messages[0].content);
         } else if ("tools" in chunk) {
           console.log(chunk.tools.messages[0].content);
-          transactionOutput = chunk.tools.messages[0].content
+          const newTransactionOutput = chunk.tools.messages[0].content;
+
+          // Check if the transactionOutput has changed
+          if (newTransactionOutput !== transactionOutput) {
+            transactionOutput = newTransactionOutput;
+
+            // Broadcast to all connected clients
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ transactionOutput }));
+              }
+            });
+          }
         }
         console.log("-------------------");
       }
 
     } catch (error) {
       console.error('Error occurred while streaming:', error);
-      error = error
-      // Additional error handling logic
+      error = error; // Handling error
     }
 
-    
   }, timePeriod * 1000); // 10000ms = 10 seconds
 };
+
+// Express routes
+app.post('/ai-agent', (req: Request, res: Response) => {
+  const { amount, address, timePeriod } = req.body;
+
+  const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
+  sendPeriodicPrompt(prompt, Number(timePeriod));
+
+  res.json({ message: transactionOutput + "\nWallet Address: " + walletAddress2 });
+});
+
+app.post('/response', (req: Request, res: Response) => {
+  if (error !== "") {
+    res.json({ error: error });
+  }
+  res.json({ message: transactionOutput });
+});
+
+// Start the HTTP server
+server.listen(3000, () => {
+    console.log(`Server running at http://localhost:3000`);
+});
 
 /**
  * Choose whether to run in autonomous or chat mode based on user input
@@ -372,32 +424,3 @@ const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
 // router.get('/ai-agent', (req: Request, res: Response) => {
     
 // });
-
-const app = express();
-app.use(express.json()); // Middleware to parse JSON
-
-app.post('/ai-agent', (req: Request, res: Response) => {
-  const { amount, address, timePeriod } = req.body;
-
-  const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
-  sendPeriodicPrompt(prompt, Number(timePeriod))
-
-  res.json({ message: transactionOutput + "\nWallet Address: " + walletAddress2 });
-});
-
-app.post('/response', (req: Request, res: Response) => {
-  // const { amount, address, timePeriod } = req.body;
-
-  // const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
-  // sendPeriodicPrompt(prompt, Number(timePeriod))
-
-  if (error != "") {
-    res.json({ error: error });
-  } 
-  res.json({ message: transactionOutput });
-});
-
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
