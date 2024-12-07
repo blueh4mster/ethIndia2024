@@ -249,7 +249,7 @@ async function runChatMode(agent: any, config: any) {
 // Function to simulate user input every 10 seconds
 
 
-const sendPeriodicPrompt = (prompt: string) => {
+const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
   setInterval(async () => {
     console.log(`\nSending automated prompt: ${prompt}`);
 
@@ -267,7 +267,7 @@ const sendPeriodicPrompt = (prompt: string) => {
       }
       console.log("-------------------");
     }
-  }, 10000); // 10000ms = 10 seconds
+  }, timePeriod * 1000); // 10000ms = 10 seconds
 };
 
 /**
@@ -298,6 +298,9 @@ async function chooseMode(): Promise<"chat" | "auto"> {
     const amount = (await question("\n how much funds do you want to send "))
       .toLowerCase()
       .trim();
+    const timePeriod = (await question("\n after how long do you want the payment to repeat (in sec) "))
+    .toLowerCase()
+    .trim();
     if (choice === "1" || choice === "chat") {
       rl.close();
       return "chat";
@@ -308,7 +311,7 @@ async function chooseMode(): Promise<"chat" | "auto"> {
       rl.close();
       // await setTimer(10, 0.01)
       const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
-      sendPeriodicPrompt(prompt)
+      sendPeriodicPrompt(prompt, Number(timePeriod))
       return "chat";
     }
     console.log("Invalid choice. Please try again.");
