@@ -7,8 +7,14 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import {Wallet} from "@coinbase/coinbase-sdk";
+import express, { Router, Request, Response } from 'express';
+// import { transfer } from "@coinbase/cdp-agentkit-core/dist/actions/cdp/transfer";
 
 dotenv.config();
+
+
+const router = Router();
 
 /**
  * Validates that required environment variables are set
@@ -104,6 +110,19 @@ async function initializeAgent() {
 
     // Save wallet data
     const exportedWallet = await agentkit.exportWallet();
+     // console.log(exportedWallet);
+     
+    const data = JSON.parse(exportedWallet);
+
+    // Extract the defaultAddressId
+    const walletId = data.walletId;
+
+    var wallet = await Wallet.fetch(walletId) 
+
+    const faucet = await wallet.faucet();
+
+    // console.log("Faucet Transaction: ", faucet.getTransactionHash())
+
     fs.writeFileSync(WALLET_DATA_FILE, exportedWallet);
 
     return { agent, config: agentConfig };
@@ -120,142 +139,235 @@ async function initializeAgent() {
  * @param config - Agent configuration
  * @param interval - Time interval between actions in seconds
  */
-async function runAutonomousMode(agent: any, config: any, interval = 10) {
-  console.log("Starting autonomous mode...");
+// async function runAutonomousMode(agent: any, config: any, interval = 10) {
+//   console.log("Starting autonomous mode...");
 
-  while (true) {
-    try {
-      const thought =
-        "Be creative and do something interesting on the blockchain. " +
-        "Choose an action or set of actions and execute it that highlights your abilities.";
+//   while (true) {
+//     try {
+//       const thought =
+//         "Be creative and do something interesting on the blockchain. " +
+//         "Choose an action or set of actions and execute it that highlights your abilities.";
         
+//       const stream = await agent.stream({ messages: [new HumanMessage(thought)] }, config);
 
-      const stream = await agent.stream({ messages: [new HumanMessage(thought)] }, config);
+//       for await (const chunk of stream) {
+//         if ("agent" in chunk) {
+//           console.log(chunk.agent.messages[0].content);
+//         } else if ("tools" in chunk) {
+//           console.log(chunk.tools.messages[0].content);
+//         }
+//         console.log("-------------------");
+//       }
 
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
-        }
-        console.log("-------------------");
+//       await new Promise(resolve => setTimeout(resolve, interval * 1000));
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         console.error("Error:", error.message);
+//       }
+//       process.exit(1);
+//     }
+//   }
+// }
+
+// /**
+//  * Run the agent interactively based on user input
+//  *
+//  * @param agent - The agent executor
+//  * @param config - Agent configuration
+//  */
+// async function runChatMode(agent: any, config: any) {
+//   console.log("Starting chat mode... Type 'exit' to end.");
+
+//   const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout,
+//   });
+
+//   const question = (prompt: string): Promise<string> =>
+//     new Promise(resolve => rl.question(prompt, resolve));
+
+//   try {
+//     while (true) {
+//       const userInput = await question("\nPrompt: ");
+
+//       if (userInput.toLowerCase() === "exit") {
+//         break;
+//       }
+
+//       const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+
+//       for await (const chunk of stream) {
+//         if ("agent" in chunk) {
+//           console.log(chunk.agent.messages[0].content);
+//         } else if ("tools" in chunk) {
+//           console.log(chunk.tools.messages[0].content);
+//         }
+//         console.log("-------------------");
+//       }
+//     }
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error("Error:", error.message);
+//     }
+//     process.exit(1);
+//   } finally {
+//     rl.close();
+//   }
+// }
+
+// async function setTimer(time: number, amount: number) {
+//   if (time <= 0) {
+//     throw new Error("Interval must be greater than 0");
+//   }
+
+//   const { agent, config, agentkit } = await initializeAgent();
+
+//   // Convert seconds to milliseconds
+//   const intervalInMilliseconds = time * 1000;
+//   const dummy = async function(){}();
+//   // Call transfer every x seconds
+//   setInterval(() => {
+//     console.log(`transfer ${amount} sepolia eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain`)
+    
+//     // const userInput = `transfer ${amount} sepolia eth to 0xC368B76F5BcDC2E86EDA0716581A73A5265806fE on Base Sepolia chain`;
+
+//     // const stream = agent
+//     // .stream({ messages: [new HumanMessage(userInput)] }, config)
+//     // .then(async (stream) => {
+//     //   for await (const chunk of stream) {
+//     //     if ("agent" in chunk) {
+//     //       console.log(chunk.agent.messages[0].content);
+//     //     } else if ("tools" in chunk) {
+//     //       console.log(chunk.tools.messages[0].content);
+//     //     }
+//     //     console.log("-------------------");
+//     //   }
+//     // })
+//     // .catch((error) => {
+//     //   console.error("Error processing stream:", error, "Stream: ", userInput);
+//     // });
+  
+//   }, intervalInMilliseconds)
+// }
+
+// Function to simulate user input every 10 seconds
+
+
+const sendPeriodicPrompt = (prompt: string, timePeriod: number) => {
+  setInterval(async () => {
+    console.log(`\nSending automated prompt: ${prompt}`);
+
+    const { agent, config } = await initializeAgent();
+    
+    const userInput = prompt; // Using predefined prompt as user input
+
+    const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+
+    for await (const chunk of stream) {
+      if ("agent" in chunk) {
+        console.log(chunk.agent.messages[0].content);
+      } else if ("tools" in chunk) {
+        console.log(chunk.tools.messages[0].content);
       }
-
-      await new Promise(resolve => setTimeout(resolve, interval * 1000));
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error:", error.message);
-      }
-      process.exit(1);
+      console.log("-------------------");
     }
-  }
-}
-
-/**
- * Run the agent interactively based on user input
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- */
-async function runChatMode(agent: any, config: any) {
-  console.log("Starting chat mode... Type 'exit' to end.");
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const question = (prompt: string): Promise<string> =>
-    new Promise(resolve => rl.question(prompt, resolve));
-
-  try {
-    while (true) {
-      const userInput = await question("\nPrompt: ");
-
-      if (userInput.toLowerCase() === "exit") {
-        break;
-      }
-
-      const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
-
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
-        }
-        console.log("-------------------");
-      }
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    }
-    process.exit(1);
-  } finally {
-    rl.close();
-  }
-}
+  }, timePeriod * 1000); // 10000ms = 10 seconds
+};
 
 /**
  * Choose whether to run in autonomous or chat mode based on user input
  *
  * @returns Selected mode
  */
-async function chooseMode(): Promise<"chat" | "auto"> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+// async function chooseMode(): Promise<"chat" | "auto"> {
+//   const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout,
+//   });
 
-  const question = (prompt: string): Promise<string> =>
-    new Promise(resolve => rl.question(prompt, resolve));
+//   const question = (prompt: string): Promise<string> =>
+//     new Promise(resolve => rl.question(prompt, resolve));
 
-  while (true) {
-    console.log("\nAvailable modes:");
-    console.log("1. chat    - Interactive chat mode");
-    console.log("2. auto    - Autonomous action mode");
+//   while (true) {
+//     console.log("\nAvailable modes:");
+//     console.log("1. chat    - Interactive chat mode");
+//     console.log("2. auto    - Autonomous action mode");
 
-    const choice = (await question("\nChoose a mode (enter number or name): "))
-      .toLowerCase()
-      .trim();
-
-    if (choice === "1" || choice === "chat") {
-      rl.close();
-      return "chat";
-    } else if (choice === "2" || choice === "auto") {
-      rl.close();
-      return "auto";
-    }
-    console.log("Invalid choice. Please try again.");
-  }
-}
+//     const choice = (await question("\nChoose a mode (enter number or name): "))
+//       .toLowerCase()
+//       .trim();
+//     const address = (await question("\n to which address do you want to send funds "))
+//       .toLowerCase()
+//       .trim();
+//     const amount = (await question("\n how much funds do you want to send "))
+//       .toLowerCase()
+//       .trim();
+//     const timePeriod = (await question("\n after how long do you want the payment to repeat (in sec) "))
+//     .toLowerCase()
+//     .trim();
+//     if (choice === "1" || choice === "chat") {
+//       rl.close();
+//       return "chat";
+//     } else if (choice === "2" || choice === "auto") {
+//       rl.close();
+//       return "auto";
+//     } else if (choice === "timer") {
+//       rl.close();
+//       // await setTimer(10, 0.01)
+//       const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
+//       sendPeriodicPrompt(prompt, Number(timePeriod))
+//       return "chat";
+//     }
+//     console.log("Invalid choice. Please try again.");
+//   }
+// }
 
 /**
  * Start the chatbot agent
  */
-async function main() {
-  try {
-    const { agent, config } = await initializeAgent();
-    const mode = await chooseMode();
+// async function main() {
+//   try {
+//     const { agent, config } = await initializeAgent();
+//     const mode = await chooseMode();
 
-    if (mode === "chat") {
-      await runChatMode(agent, config);
-    } else {
-      await runAutonomousMode(agent, config);
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    }
-    process.exit(1);
-  }
-}
+//     if (mode === "chat") {
+//       await runChatMode(agent, config);
+//     } else {
+//       await runAutonomousMode(agent, config);
+//     }
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error("Error:", error.message);
+//     }
+//     process.exit(1);
+//   }
+// }
 
-if (require.main === module) {
-  console.log("Starting Agent...");
-  main().catch(error => {
-    console.error("Fatal error:", error);
-    process.exit(1);
-  });
-}
+// if (require.main === module) {
+//   console.log("Starting Agent...");
+//   main().catch(error => {
+//     console.error("Fatal error:", error);
+//     process.exit(1);
+//   });
+// }
+
+// router.get('/ai-agent', (req: Request, res: Response) => {
+    
+// });
+
+const app = express();
+app.use(express.json()); // Middleware to parse JSON
+
+app.post('/ai-agent', (req: Request, res: Response) => {
+  const { amount, address, timePeriod } = req.body;
+
+  const prompt = `transfer ${amount} eth to ${address} on Base Sepolia chain, not a gasless transfer`;
+  sendPeriodicPrompt(prompt, Number(timePeriod))
+
+  res.json({ message: 'This is an example route' });
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
