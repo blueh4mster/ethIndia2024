@@ -17,7 +17,7 @@ FortressAI provides helpful AI Agents that run in TEEs to make sure your data is
 
 ## Architecture
 
-![Architecture Diagram]()
+![Architecture Diagram](architecture.jpg)
 
 ## Challenges and Lessons Learned
 
