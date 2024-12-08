@@ -16,12 +16,12 @@ const AuthLayout = () => {
           headerShown: false,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="agents"
         options={{
           headerShown: false,
         }}
-      />
+      /> */}
     </Stack>
   );
 };

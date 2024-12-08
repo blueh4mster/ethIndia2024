@@ -3,6 +3,7 @@ import CustomButton from "@/components/customButton";
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
 import walletImage from "@/assets/images/illustration.png";
+import React from "react";
 
 export default function signIn() {
   return (
