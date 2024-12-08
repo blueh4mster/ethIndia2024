@@ -10,8 +10,8 @@ export default function App() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className="flex-1 justify-center">
           <View className="flex-row p-4 mt-8">
-            <Text className="text-white text-6xl font-bold">Taco</Text>
-            <Text className="text-purple text-6xl font-bold">Galaxy</Text>
+            <Text className="text-white text-6xl font-bold">Fortress</Text>
+            <Text className="text-purple text-6xl font-bold">AI</Text>
           </View>
           <View className="mt-4 relative left-16">
             <Image
@@ -22,12 +22,12 @@ export default function App() {
           </View>
           <View className="p-4 -mt-6">
             <Text className="text-white text-3xl font-bold">
-              Welcome to the{"\n"}future of wallets
+              Welcome to the{"\n"}future of AI agents
             </Text>
           </View>
           <View className="p-4 -mt-4">
             <Text className="text-white text-xl">
-              Take your crypto exchanges{"\n"}to the next level
+              Trustless AI agents{"\n"}that run inside TEEs
             </Text>
           </View>
           <View className="items-center mt-8">

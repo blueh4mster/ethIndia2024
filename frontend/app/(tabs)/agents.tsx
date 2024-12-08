@@ -12,36 +12,39 @@ export default function Agents() {
   const handleContinue = () => {
     if (selectedCard === "AI Agent") {
       router.push("/agents/add");
+    } else {
+      router.push("/notifications");
     }
   };
 
   return (
     <SafeAreaView className="bg-black h-full">
-      <View className="mt-12 top-4 left-4 mb-12">
+      <View className="flex-row mt-12 top-4 left-4 mb-12 relative">
         <View className="flex-row">
           <Text className="text-white text-3xl font-bold">Choose</Text>
-          <Text className="text-white text-3xl font-bold">Agents</Text>
+          <Text className="text-white text-3xl font-bold"> Agents</Text>
+        </View>
+        <View className="absolute top-0 right-8 bg-purple px-4 py-2 rounded-lg">
+          <Text className="text-white">0x3086...</Text>
         </View>
       </View>
 
-      <View className="flex-row p-4 gap-4">
+      <View className="flex-col p-4 gap-4">
         <CustomCard
-          title="AI Agent"
-          description="Navigate to the home screen."
-          iconName="home"
+          title="Recurring Payments"
+          description="Automated recurring payments for subscription management."
+          iconName="computer"
           iconColor="white"
           outline={selectedCard !== "AI Agent"}
           handlePress={() => setSelectedCard("AI Agent")}
-          containerStyle="flex-1"
         />
         <CustomCard
           title="Trading"
-          description="Manage your preferences."
-          iconName="settings"
+          description="A trading agent is an AI that automates trades, analyzing data to maximize profits."
+          iconName="money"
           iconColor="white"
           outline={selectedCard !== "Trading"}
           handlePress={() => setSelectedCard("Trading")}
-          containerStyle="flex-1"
         />
       </View>
 

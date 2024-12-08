@@ -26,7 +26,7 @@ export default function TabLayout() {
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <MaterialIcons
-                name="add-circle-outline"
+                name="person"
                 size={24}
                 color={focused ? "white" : color}
               />
@@ -37,11 +37,11 @@ export default function TabLayout() {
         <Tabs.Screen
           name="subs"
           options={{
-            title: "Subs",
+            title: "Subscriptions",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <MaterialIcons
-                name="home"
+                name="power"
                 size={24}
                 color={focused ? "white" : color}
               />
@@ -50,13 +50,13 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="trading"
+          name="notifications"
           options={{
-            title: "Trading",
+            title: "Notifications",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <MaterialIcons
-                name="history"
+                name="notifications"
                 size={24}
                 color={focused ? "white" : color}
               />

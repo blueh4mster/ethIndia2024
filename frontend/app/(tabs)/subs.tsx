@@ -41,9 +41,9 @@ export default function Subs() {
         {selectedTab === "currentAgents" ? (
           <View className="flex-row p-4 gap-4">
             <CustomCard
-              title="AI Agent"
-              description="Navigate to the home screen."
-              iconName="home"
+              title="Recurring Payments"
+              description="Automated recurring payments for subscription management."
+              iconName="computer"
               iconColor="white"
               containerStyle="flex-1"
             />
@@ -51,16 +51,16 @@ export default function Subs() {
         ) : (
           <View className="flex-row p-4 gap-4">
             <CustomCard
-              title="AI Agent"
-              description="Navigate to the home screen."
-              iconName="home"
+              title="Recurring Payments"
+              description="Automated recurring payments for subscription management."
+              iconName="computer"
               iconColor="white"
               containerStyle="flex-1"
             />
             <CustomCard
               title="Trading"
-              description="Manage your preferences."
-              iconName="settings"
+              description="A trading agent is an AI that automates trades, analyzing data to maximize profits."
+              iconName="money"
               iconColor="white"
               containerStyle="flex-1"
             />

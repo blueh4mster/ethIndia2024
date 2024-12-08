@@ -26,8 +26,7 @@ export default function setUp() {
   const { open, isConnected, address, provider } = useWalletConnectModal();
 
   const handlePressButton = async () => {
-    console.log("buttonpressed");
-    if (!isConnected) {
+    if (isConnected) {
       router.push("/agents");
       return provider?.disconnect();
     }
@@ -66,7 +65,11 @@ export default function setUp() {
               </Text>
             </View> */}
             <CustomButton
-              title={isConnected ? address + " >" : "Connect Wallet"}
+              title={
+                isConnected
+                  ? `${address.substring(0, 8)}... >`
+                  : "Connect Wallet"
+              }
               outline={false}
               handlePress={handlePressButton}
               containerstyle="min-w-[340px]"
